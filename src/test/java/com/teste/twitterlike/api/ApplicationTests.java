@@ -23,6 +23,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.util.ExceptionTypeFilter;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.context.WebApplicationContext;
@@ -33,7 +34,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static javax.swing.UIManager.get;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
@@ -126,6 +126,28 @@ public class ApplicationTests {
                 .header("Authorization", "Bearer " + accessToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)));
+    }
+
+    @Test
+    public void testTweetLimit() throws Exception {
+        final String accessToken = obtainAccessToken("teste", "teste");
+
+        String tweet = "";
+        for( int i = 0; i < 150; i++ ) {
+            tweet += "a";
+        }
+
+        final Map content = new HashMap<>();
+        content.put("tweet", tweet);
+
+        final Gson gson = new Gson();
+        final String json = gson.toJson(content);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v2/tweet")
+                .contentType( MediaType.APPLICATION_JSON )
+                .content( json )
+                .header("Authorization", "Bearer " + accessToken))
+                .andExpect(status().isBadRequest());
     }
 
     private String obtainAccessToken(String username, String password) throws Exception {
