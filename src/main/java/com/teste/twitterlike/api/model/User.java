@@ -1,6 +1,5 @@
 package com.teste.twitterlike.api.model;
 
-import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -32,12 +31,8 @@ public class User implements UserDetails {
     @Column(name = "enabled", nullable = false)
     private boolean enabled;
 
-    @OneToMany(
-            cascade = CascadeType.ALL
-            ,   mappedBy = "post"
-            ,   orphanRemoval = true
-    )
-    private List<Post> posts;
+    @OneToMany(cascade=CascadeType.ALL)
+    private List<Tweet> tweets;
 
     @OneToMany(fetch = FetchType.EAGER, cascade=CascadeType.ALL)
     private List<Role> roles;
@@ -106,12 +101,12 @@ public class User implements UserDetails {
         this.password = password;
     }
 
-    public List<Post> getPosts() {
-        return posts;
+    public List<Tweet> getTweets() {
+        return tweets;
     }
 
-    public void setPosts(List<Post> posts) {
-        this.posts = posts;
+    public void setTweets(List<Tweet> tweets) {
+        this.tweets = tweets;
     }
 
     public void setEnabled(boolean enabled) {
@@ -124,5 +119,13 @@ public class User implements UserDetails {
 
     public void setRoles(List<Role> roles) {
         this.roles = roles;
+    }
+
+    public void addTweet( Tweet tweet ) {
+        if( this.tweets == null ) {
+            this.tweets = new ArrayList<>();
+        }
+
+        this.tweets.add( tweet );
     }
 }

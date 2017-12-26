@@ -15,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by ruhandosreis on 23/12/17.
@@ -29,26 +30,19 @@ public class Application {
         SpringApplication.run(Application.class, args);
     }
 
-    /**
-     * Password grants are switched on by injecting an AuthenticationManager.
-     * Here, we setup the builder so that the userDetailsService is the one we coded.
-     * @param builder
-     * @param repository
-     * @throws Exception
-     */
     @Autowired
     public void authenticationManager(AuthenticationManagerBuilder builder, UserRepository repository, UserService service) throws Exception {
-        //Setup a default user if db is empty
-        if (repository.count()==0)
-            service.save(new User("user", "user", Arrays.asList(new Role("USER"), new Role("ACTUATOR"))));
+
+        if ( repository.count() == 0) {
+            final List<Role> roles = Arrays.asList(new Role("USER"), new Role("ACTUATOR"));
+            final User user = new User("user", "user", roles);
+
+            service.save(user);
+        }
+
         builder.userDetailsService(userDetailsService(repository)).passwordEncoder(passwordEncoder);
     }
 
-    /**
-     * We return an istance of our CustomUserDetails.
-     * @param repository
-     * @return
-     */
     private UserDetailsService userDetailsService(final UserRepository repository) {
         return username -> new CustomUserDetails(repository.findByUsername(username));
     }

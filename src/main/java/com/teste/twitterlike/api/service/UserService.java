@@ -25,8 +25,16 @@ public class UserService {
         return new BCryptPasswordEncoder();
     }
 
+    public User findByUsername( String username ) {
+        return repo.findByUsername( username );
+    }
+
     public void save(User user){
         user.setPassword(getPasswordEncoder().encode(user.getPassword()));
         repo.save(user);
+    }
+
+    public void update(User user) {
+        repo.save( user );
     }
 }
